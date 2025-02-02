@@ -1,5 +1,11 @@
-#include <utility>
 #include <iostream>
+#include <utility>      // contém std::swap;
+#include <functional>   // contém std::function;
+
+/**
+ * comando de compilação: g++ _01-exemplo.cpp -o main.exe
+ * referência: https://www.learncpp.com/cpp-tutorial/function-pointers/
+*/
 
 int foo()
 {
@@ -256,6 +262,56 @@ int main()
     // dar manutenção nesta versão;
     bool validate(int x, int y, ValidateFunction pFn);
   }
+
+  // usando std::function:
+  // um método alternativo de definir e armazenar um ponteiro de função, é usar std::function;
+  // este tipo faz parte do arquivo de cabeçalho 'functional', e é parte da biblioteca padrão;
+  // para definir um ponteiro de função usando este método, faça como a seguir;
+  // bloco anônimo, delimita um novo escopo;
+  {
+    bool validate(int x, int y, std::function<bool(int, int)> fn);
+  }
+
+  // declara uma variável que se chama 'fcnPtr', e é um ponteiro de função, para uma função
+  // que deve retornar um 'int', e não declara nenhum parâmetro;
+  std::function<int()> fcnPtr { &foo };
+
+  // atribui ao ponteiro de função, o endereço da função 'goo';
+  fcnPtr = &goo;
+
+  // como era de se esperar, podemos invocar a função apontada pelo ponteiro de função, normalmente;
+  std::cout << fcnPtr() << '\n';
+
+  // também é possível fazer da seguinte forma, através da inferência dos argumentos de template;
+  std::function fcnPtr2 { &foo };
+
+  // também é possível utilizar a feature de type alias (apelido de tipo), para facilitar a leitura;
+  {
+    using ValidateFunctionRaw = bool(*)(int, int);  // apelido de tipo para o ponteiro de função bruto;
+    using ValidateFunction2 = std::function<bool(int, int)>;  // apelido de tipo para std::function;
+  }
+
+  // é importante lembrar que, std::function, somente aceita a invocação de função através da
+  // desreferência implícita, como por exemplo, 'fcnPtr()', e não aceita a forma explícita, como
+  // por exemplo, '(*fcnPtr)()';
+
+  // quando utilizando apelidos de tipo, nós devemos explicitamente definir qualquer argumento
+  // de template; não é possível usar a inferência de tipos, neste caso, pois não existe 
+  // inicializador, ou seja, não existe um dado sendo atribuído do qual possa ser feita a 
+  // inferência dos argumentos de template;
+
+  // inferência de tipos para ponteiros de função:
+  // assim como a palavra-chave 'auto' para inferir o tipo de variáveis normais, a keyword 
+  // 'auto' também pode inferir o tipo de ponteiros de função;
+  {
+    auto fcnPtr { &joo };
+    std::cout << fcnPtr(42) << '\n';
+  }
+
+  // isso funciona exatamente como é de se esperar, e a sintaxe é muito limpa; o único problema 
+  // com essa abordagem é que todos os detalhes de tipos de parâmetros de função e tipo de retorno
+  // são escondidos, então é mais fácil cometer um erro quando invocando a função, ou usando seu
+  // valor de retorno;
 
   return 0;
 }
